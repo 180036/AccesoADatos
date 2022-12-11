@@ -1,2 +1,2 @@
 # AccesoADatos
-Repositorio sobre la asignatura AccesoADatos (2022-2023) 🧨
+Repositorio sobre la asignatura Acceso a datos (2022-2023) 🧨
