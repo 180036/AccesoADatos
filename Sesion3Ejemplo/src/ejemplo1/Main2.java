@@ -19,7 +19,7 @@ public class Main2 {
 		
     //  System.out.println(abd.insertarDepartamento(new DepartamentoEntity(60,"Recursos Humanos", "Chimillas")));
     //  System.out.println(abd.insertarDepartamento(new DepartamentoEntity(60,"Recursos Humanos", "Chimillas")));
-    //  abd.imprimirDepartamento(60);
+    // abd.imprimirDepartamento(60);
 		
 	//	System.out.println(abd.modificarDepartamento(new DepartamentoEntity(88,"RRHH", "Huerrios")));
 	//	System.out.println(abd.modificarDepartamento(new DepartamentoEntity(60,"RRHH", "Esquedas")));
@@ -31,7 +31,7 @@ public class Main2 {
 		
 	//	abd.imprimirDepartamento(10);
 	
-	abd.demoJPQL();
+	//abd.demoJPQL();
 		
 		abd.desconectar();
 	

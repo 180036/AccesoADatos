@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 //
-//Alberto Carrera Martín - Abril 2020
+//Alberto Carrera Martï¿½n - Abril 2020
 //
 
 @Entity
@@ -85,5 +85,8 @@ public class EmpleadoEntity {
 	public void setDepartamento(DepartamentoEntity departamento) {
 		this.departamento = departamento;
 	}
+
+	
+	
 	
 }

@@ -2,6 +2,7 @@ package ejemplo1;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -11,7 +12,7 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 //
-// Alberto Carrera Martín - Abril 2020
+// Alberto Carrera Martï¿½n - Abril 2020
 //
 
 public class AccesoBdatos {
@@ -28,7 +29,7 @@ public class AccesoBdatos {
 	}
 	public DepartamentoEntity buscarDepartamento(int numDepartamento) {
 		return em.find(DepartamentoEntity.class, numDepartamento);
-	}// de método buscarDepartamento
+	}// de mï¿½todo buscarDepartamento
 	//
 	@SuppressWarnings("deprecation")
 	public void imprimirDepartamento (int numDepartamento) {
@@ -46,24 +47,24 @@ public class AccesoBdatos {
 				datos+="*******************";
 			}
 			for (EmpleadoEntity empleado :empleados) {
-				datos+= "\nNúmero de empleado: " + empleado.getEmpnoId()+ "\n";
+				datos+= "\nNï¿½mero de empleado: " + empleado.getEmpnoId()+ "\n";
 				datos+= "Nombre: " + empleado.getNombre()+ "\n";
 				datos+= "Oficio: " + empleado.getOficio()+ "\n";
 				if (empleado.getDirId()==null)
 					datos+= "Jefe: No tiene"+ "\n";
 				else
 					datos+= "Jefe: "+ empleado.getDirId().getNombre()+ "\n";
-				datos+= "Año de alta: " + (empleado.getAlta().getYear()+1900)+ "\n";	
+				datos+= "Aï¿½o de alta: " + (empleado.getAlta().getYear()+1900)+ "\n";	
 				datos+= "Salario: "+ empleado.getSalario()+ "\n";
 				if (empleado.getComision() ==null)
-					datos+= "Comisión: No tiene"+ "\n";
+					datos+= "Comisiï¿½n: No tiene"+ "\n";
 				else
-					datos+= "Comisión: "+ empleado.getComision()+ "\n";
+					datos+= "Comisiï¿½n: "+ empleado.getComision()+ "\n";
 			}
 			
 			System.out.println(datos);
 		}
-	} // de método imprimirDepartamento
+	} // de mï¿½todo imprimirDepartamento
 	
 	public boolean insertarDepartamento (DepartamentoEntity d) {
 		if (buscarDepartamento(d.getDptoId())!=null)
@@ -86,7 +87,7 @@ public class AccesoBdatos {
 		return true;
 	} // de modificarDepartamento
 	
-	// Si tiene empleados lo borraría igual, dejando en estos el número de Departamento
+	// Si tiene empleados lo borrarï¿½a igual, dejando en estos el nï¿½mero de Departamento
 	// pero el resto de los atributos del departamento a null. Por eso no dejo borrar
 	
 	public boolean borrarDepartamento  (int numDepartamento) {
@@ -134,6 +135,233 @@ public class AccesoBdatos {
 		    }     
 	     
 	}// de demoJPQL
+	
+	public void ejercicio1() {
+		em.getTransaction().begin();
+		TypedQuery<Object[]> consulta = em.createQuery("SELECT e.nombre, e.alta FROM EmpleadoEntity e", Object[].class);
+		List<Object[]> lista = consulta.getResultList();
+		
+		for(Object[] r: lista) {
+			System.out.println(r[0] + " " + r[1]);
+		}
+		em.getTransaction().commit();
+		
+	}
+	public void ejercicio2() {
+		em.getTransaction().begin();
+		TypedQuery<EmpleadoEntity> consulta = em.createQuery("SELECT e FROM EmpleadoEntity e", EmpleadoEntity.class);
+		List<EmpleadoEntity> lista = consulta.getResultList();
+		
+		for(EmpleadoEntity e: lista) {
+			if(e.getNombre().toLowerCase().contains("carrera")) {
+				System.out.println(e.getNombre() + e.getAlta());
+				
+			}
+		}
+	}
+	public void ejercicio3() {
+		em.getTransaction().begin();
+		TypedQuery<DepartamentoEntity> consulta = em.createQuery("SELECT d FROM DepartamentoEntity d", DepartamentoEntity.class);
+		List<DepartamentoEntity> lista = consulta.getResultList();
+		
+		for(DepartamentoEntity d: lista) {
+			if(d.getNombre().equalsIgnoreCase("I+D")) {
+				for(EmpleadoEntity e: d.getEmpleados()) {
+					if(e.getOficio().toLowerCase().contains("empleado"))
+					System.out.println(e.getNombre() + " - " + e.getOficio() + " - "+e.getDepartamento().getNombre());
+				}
+			}
+		}
+		em.getTransaction().commit();
+	}
+	public void ejercicio4() {
+		String pattern="yyyy";
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		int fecha = 0;
+		
+		em.getTransaction().begin();
+		TypedQuery<EmpleadoEntity> consulta = em.createQuery("SELECT e FROM EmpleadoEntity e", EmpleadoEntity.class);
+		List<EmpleadoEntity> lista = consulta.getResultList();
+		
+		for(EmpleadoEntity e: lista) {
+			fecha=Integer.parseInt(sdf.format(e.getAlta()));
+			
+			if(fecha>=2003) {
+				System.out.println(e.getNombre() + e.getAlta());
+			}
+		}
+		em.getTransaction().commit();
+	}
+	public void ejercicio5() {
+		em.getTransaction().begin();
+		TypedQuery<DepartamentoEntity> consulta = em.createQuery("SELECT d FROM DepartamentoEntity d ORDER BY d.nombre", DepartamentoEntity.class);
+		List<DepartamentoEntity> lista = consulta.getResultList();
+		
+		
+		for(DepartamentoEntity d: lista) {
+			if(d.getEmpleados()!= null && !d.getEmpleados().isEmpty()) {
+				
+				for(EmpleadoEntity e: d.getEmpleados()) {
+					System.out.println(d.getNombre() + " " + e.getNombre());
+				}
+			}
+		}
+		
+		em.getTransaction().commit();
+	}
+	public void ejercicio6() {
+		em.getTransaction().begin();
+		TypedQuery<Object[]> query2= em.createQuery("SELECT  e.departamento.nombre , count(e), sum(e.salario), max(e.salario) "
+					+ "FROM  EmpleadoEntity e "
+					+ "GROUP BY e.departamento.nombre ", Object[].class);
+		List<Object[]>list2=query2.getResultList();
+		for(Object[] o:list2) {
+		System.out.println(o[0]+" - "+ o[1]+" - "+ o[2]+" - "+ o[3]);
+		}
+		
+		em.getTransaction().commit();
+	}
+	public void ejercicio7() {
+		em.getTransaction().begin();
+		TypedQuery<Object[]> query2= em.createQuery("SELECT  e.departamento.nombre , count(e), sum(e.salario), max(e.salario) "
+					+ "FROM  EmpleadoEntity e "
+					+ "GROUP BY e.departamento.nombre HAVING count(e)>=5", Object[].class);
+		List<Object[]>list2=query2.getResultList();
+		for(Object[] o:list2) {
+		System.out.println(o[0]+" - "+ o[1]+" - "+ o[2]+" - "+ o[3]);
+		}
+		
+		em.getTransaction().commit();
+	}
+	public void ejercicio8() {
+		em.getTransaction().begin();
+		TypedQuery<EmpleadoEntity> consulta= em.createQuery("SELECT e FROM EmpleadoEntity e",EmpleadoEntity.class);
+		List<EmpleadoEntity> lista= consulta.getResultList();
+		
+		for(EmpleadoEntity e: lista) {
+			if(e.getDirId() != null) {
+				System.out.println(e.getNombre() + " - su jefe es - " + e.getDirId().getNombre() + " - " + e.getDepartamento().getNombre() + " - " + e.getDepartamento().getDptoId());
+			}
+		}
+		em.getTransaction().commit();
+	}
+	public void ejercicio9() {
+		em.getTransaction().begin();
+		TypedQuery<DepartamentoEntity> consulta = em.createQuery("SELECT d FROM DepartamentoEntity d", DepartamentoEntity.class);
+		List<DepartamentoEntity> lista = consulta.getResultList();
+		for(DepartamentoEntity d: lista) {
+			if(!d.getEmpleados().isEmpty() && d.getEmpleados()!=null) {
+				System.out.println(d.getNombre() + " - "+ d.getEmpleados().size()+" - ");
+			}
+		}
+		em.getTransaction().commit();
+	}
+	public void ejercicio10() {
+		em.getTransaction().begin();
+		TypedQuery<DepartamentoEntity> consulta = em.createQuery("SELECT d FROM DepartamentoEntity d", DepartamentoEntity.class);
+		List<DepartamentoEntity> lista = consulta.getResultList();
+		for(DepartamentoEntity d: lista) {
+			
+				System.out.println(d.getNombre() + " - " + d.getEmpleados().size() + " - ");
+			
+		}
+		em.getTransaction().commit();
+	}
+	public void ejercicio11() {
+		em.getTransaction().begin();
+		TypedQuery<Object[]> query2= em.createQuery("SELECT  e.departamento.dptoId, e.nombre, e.salario "
+					+ "FROM  EmpleadoEntity e "
+					+ "ORDER BY e.departamento.dptoId DESCENDING, e.salario", Object[].class);
+		List<Object[]>list2=query2.getResultList();
+		for(Object[] o:list2) {
+		System.out.println(o[0]+" - "+ o[1]+" - "+ o[2]);
+		}
+		
+		em.getTransaction().commit();
+	}
+	public void ejercicio12() {
+		em.getTransaction().begin();
+		TypedQuery<EmpleadoEntity> consulta=em.createQuery("SELECT e FROM EmpleadoEntity e", EmpleadoEntity.class);
+		List<EmpleadoEntity> lista= consulta.getResultList();
+		
+		for(EmpleadoEntity e: lista) {
+			if(e.getDirId() ==null) {
+				System.out.println(e.getNombre());
+			}
+		}
+		em.getTransaction().commit();
+	}
+	public void ejercicio13() {
+		em.getTransaction().begin();
+		TypedQuery<Object[]> consulta= em.createQuery("SELECT e.departamento.dptoId, e.departamento.nombre FROM EmpleadoEntity e WHERE e.empnoId = 1039", Object[].class);
+		Object[] empleado = consulta.getSingleResult();
+		System.out.println(empleado[0] + " - "+empleado[1] + " - ");
+		em.getTransaction().commit();
+	}
+	
+	public int incrementarSalario(int cantidad) {
+		int filas=0;
+		String s = "1."+cantidad;
+		double cantidadFinal=Double.valueOf(s);
+
+		em.getTransaction().begin();
+		Query consulta= em.createQuery("UPDATE EmpleadoEntity e SET e.salario=e.salario*"+cantidadFinal);
+		filas= consulta.executeUpdate();
+		em.getTransaction().commit();
+		return filas;
+	}
+	public int incrementarSalarioOficio(String oficio, int cantidad) {
+		int filas=0;
+		String s = "1."+cantidad;
+		double cantidadFinal=Double.valueOf(s);
+		
+		em.getTransaction().begin();
+		TypedQuery<Integer> consulta= em.createQuery("UPDATE EmpleadoEntity e SET e.salario = e.salario*:sal WHERE e.oficio like :of ",Integer.class);
+		filas=consulta.setParameter("sal", cantidadFinal).setParameter("of",oficio).executeUpdate();
+		em.getTransaction().commit();
+		return filas;
+	}
+	public int incrementarSalarioDepartamento (int numDepartamento, int cantidad) {
+		int filas=0;
+		String s = "1."+cantidad;
+		double cantidadFinal=Double.valueOf(s);
+		em.getTransaction().begin();
+		/*Query consulta= em.createQuery("UPDATE EmpleadoEntity e SET e.salario = e.salario*:sal WHERE e.departamento.dptoId = 10");
+		consulta.setParameter("sal", cantidadFinal);
+		consulta.setParameter("of",numDepartamento);
+		filas=consulta.executeUpdate();*/
+		TypedQuery<DepartamentoEntity> consulta= em.createQuery("SELECT d FROM DepartamentoEntity d ORDER BY d.dptoId",DepartamentoEntity.class);
+		List<DepartamentoEntity> lista=consulta.getResultList();
+		
+		for(DepartamentoEntity d: lista) {
+			if(d.getDptoId() == numDepartamento) {
+				for(EmpleadoEntity e: d.getEmpleados()) {
+					e.setSalario((int)(e.getSalario()*cantidadFinal));
+				}
+				filas=d.getEmpleados().size();
+			}
+		}
+		
+		em.getTransaction().commit();
+		return filas;
+	}
+	
+	public int borrarEmpleado(int numEmpleado) {
+		em.getTransaction().begin();
+		TypedQuery<Integer> consulta = em.createQuery("DELETE FROM EmpleadoEntity e WHERE e.empnoId = :num",Integer.class);
+		consulta.setParameter("num", numEmpleado);
+		int filas= consulta.executeUpdate();
+		em.getTransaction().commit();
+		return filas;
+	}
+	public int borrarDepartamentoJPQL(int numDepartamento) {
+		em.getTransaction().begin();
+		TypedQuery<Integer> consulta = em.createQuery("DELETE FROM DepartamentoEntity d WHERE d.dptoId = :num",Integer.class);
+		consulta.setParameter("num", numDepartamento);
+		int filas= consulta.executeUpdate();
+		em.getTransaction().commit();
+		return filas;
+	}
 //--------------------------------------------------------------------------------------------------------------
 	
 } // de la clase
